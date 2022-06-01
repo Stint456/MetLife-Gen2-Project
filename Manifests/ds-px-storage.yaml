@@ -1,0 +1,222 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  annotations:
+    deprecated.daemonset.template.generation: "1"
+    meta.helm.sh/release-name: portworx
+    meta.helm.sh/release-namespace: default
+    portworx.com/helm-vars: chart="portworx-1.0.22",advOpts="none",changePortRange="true",clusterName="portworxstoragelayer",enablePVCController="true",envVars="none",etcd="map[secret:px-etcd-certs]",imageVersion="2.6.2.1",kvdb="etcd:https://f0af34e7-9926-4d97-a909-0b344cf26203.2adb0220806343e3ae11df79c89b377f.private.databases.appdomain.cloud:31770",lighthouseStorkConnectorVersion="2.0.5",lighthouseSyncVersion="2.0.5",lighthouseVersion="2.0.5",network="map[dataInterface:none
+      managementInterface:none]",secretType="ibm-kp",serviceAccount="map[hook:map[create:true
+      name:<nil>]]",storage="map[drives:none journalDevice:none metadataSize:0 usedrivesAndPartitions:true
+      usefileSystemDrive:true]",storkVersion="2.5.0"
+    portworx.com/install-source: helm/Helm-r1
+  generation: 1
+  labels:
+    app.kubernetes.io/instance: portworx
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: portworx-portworx
+    helm.sh/chart: portworx-1.0.22
+    name: portworx
+  name: portworx
+  namespace: kube-system
+spec:
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      name: portworx
+  template:
+    metadata:
+      annotations:
+        productID: com.portworx.enterprise
+        productName: PX-Enterprise
+        productVersion: 2.6.2.1
+      labels:
+        app.kubernetes.io/instance: portworx
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: portworx-portworx
+        helm.sh/chart: portworx-1.0.22
+        name: portworx
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: px/enabled
+                operator: NotIn
+                values:
+                - "false"
+              - key: node-role.kubernetes.io/master
+                operator: DoesNotExist
+            - matchExpressions:
+              - key: px/storage
+                operator: In
+                values:
+                - "true"
+      containers:
+      - args:
+        - -A
+        - -f
+        - -k
+        - etcd:https://f0af34e7-9926-4d97-a909-0b344cf26203.2adb0220806343e3ae11df79c89b377f.private.databases.appdomain.cloud:31770
+        - -c
+        - portworxstoragelayer
+        - -secret_type
+        - ibm-kp
+        - -userpwd
+        - $(ETCD_USERNAME):$(ETCD_PASSWORD)
+        - -ca
+        - /etc/pwx/etcdcerts/ca.pem
+        - -r
+        - "17001"
+        - -x
+        - kubernetes
+        env:
+        - name: PX_POD_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: PX_TEMPLATE_VERSION
+          value: v2
+        - name: ETCD_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: px-etcd-certs
+        - name: ETCD_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: px-etcd-certs
+        image: portworx/oci-monitor:2.6.2.1
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            host: 127.0.0.1
+            path: /status
+            port: 17001
+            scheme: HTTP
+          initialDelaySeconds: 840
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: portworx
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            host: 127.0.0.1
+            path: /health
+            port: 17015
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        securityContext:
+          allowPrivilegeEscalation: true
+          capabilities:
+            drop:
+            - ALL
+          privileged: true
+        terminationMessagePath: /tmp/px-termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/pwx/etcdcerts
+          name: etcdcerts
+        - mountPath: /var/run/docker.sock
+          name: dockersock
+        - mountPath: /run/containerd
+          name: containerdsock
+        - mountPath: /etc/pwx
+          name: etcpwx
+        - mountPath: /var/cores
+          name: cores
+        - mountPath: /opt/pwx
+          name: optpwx
+        - mountPath: /etc/systemd/system
+          name: sysdmount
+        - mountPath: /var/run/log
+          name: journalmount1
+          readOnly: true
+        - mountPath: /var/log
+          name: journalmount2
+          readOnly: true
+        - mountPath: /var/run/dbus
+          name: dbusmount
+        - mountPath: /host_proc
+          name: hostproc
+        - mountPath: /var/run/crio
+          name: criosock
+        - mountPath: /etc/crictl.yaml
+          name: crioconf
+      dnsPolicy: ClusterFirst
+      hostNetwork: true
+      hostPID: true
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: px-account
+      serviceAccountName: px-account
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: etcdcerts
+        secret:
+          defaultMode: 420
+          items:
+          - key: ca.pem
+            path: ca.pem
+          secretName: px-etcd-certs
+      - hostPath:
+          path: /var/run/docker.sock
+          type: ""
+        name: dockersock
+      - hostPath:
+          path: /run/containerd
+          type: ""
+        name: containerdsock
+      - hostPath:
+          path: /dev
+          type: ""
+        name: dev
+      - hostPath:
+          path: /etc/pwx
+          type: ""
+        name: etcpwx
+      - hostPath:
+          path: /var/cores
+          type: ""
+        name: cores
+      - hostPath:
+          path: /opt/pwx
+          type: ""
+        name: optpwx
+      - hostPath:
+          path: /etc/systemd/system
+          type: ""
+        name: sysdmount
+      - hostPath:
+          path: /var/run/log
+          type: ""
+        name: journalmount1
+      - hostPath:
+          path: /var/log
+          type: ""
+        name: journalmount2
+      - hostPath:
+          path: /var/run/dbus
+          type: ""
+        name: dbusmount
+      - hostPath:
+          path: /proc
+          type: ""
+        name: hostproc
+      - hostPath:
+          path: /var/run/crio
+          type: ""
+        name: criosock
+      - hostPath:
+          path: /etc/crictl.yaml
+          type: ""
+        name: crioconf

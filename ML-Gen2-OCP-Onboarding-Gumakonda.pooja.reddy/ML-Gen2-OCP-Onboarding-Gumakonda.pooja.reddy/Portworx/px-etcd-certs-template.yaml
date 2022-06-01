@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: px-etcd-certs
+  namespace: kube-system
+type: Opaque
+data:
+  ca.pem: <certificate_base64>
+  username: <username_base64>
+  password: <password_base64>
+

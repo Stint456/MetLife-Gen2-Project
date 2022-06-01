@@ -1,0 +1,11 @@
+{
+ 	"apikey": "API-KEY",
+        "cluster_name": "portworxstoragelayer",
+        "clusters": "CLUSTER",
+        "etcd_endpoint": "etcd:ETCD-ENDPOINT",
+        "etcd_secret": "px-etcd-certs",
+        "internal_kvdb": "external",
+        "secret_type": "ibm-kp",
+	"portworx_version": "2.5.7",
+	"stork_version": "2.4.4"
+}	    

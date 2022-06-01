@@ -1,0 +1,11 @@
+{
+ 	"apikey": "r-imhsX7whqCeIHDzS9zEfYDpUY0MI-wxRnbFvUcqmb6",
+        "cluster_name": "portworxstoragelayer",
+        "clusters": "gen2-dev-int",
+        "etcd_endpoint": "etcd:https://fddfcc9f-d471-41b1-be4c-1d50fed8cf6d.br37s45d0p54n73ffbr0.private.databases.appdomain.cloud:32406",
+        "etcd_secret": "px-etcd-certs",
+        "internal_kvdb": "external",
+        "secret_type": "ibm-kp",
+	"portworx_version": "2.5.7",
+	"stork_version": "2.4.4"
+}	    

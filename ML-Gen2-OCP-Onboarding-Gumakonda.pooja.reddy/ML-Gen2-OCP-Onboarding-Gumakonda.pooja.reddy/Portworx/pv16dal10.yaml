@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv16dal10
+  annotations:
+    ibm.io/iqn: "iqn.2020-09.com.ibm:ibm02su1399257-i159039928"
+    ibm.io/username: "IBM02SU1399257-I159039928"
+    ibm.io/password: "dm8sQ3drnUfFMaLQ"
+    ibm.io/targetip: "161.26.99.81"
+    ibm.io/lunid: "25"
+    ibm.io/nodeip: "10.95.168.16"
+    ibm.io/volID: "172941922"
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /
+  storageClassName: ibmc-block-attacher
+

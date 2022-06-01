@@ -1,0 +1,10 @@
+{ 
+	"disk_encryption_instance_crn": "a66ad1f5-19eb-4c0c-93b5-81e43f71ab54", 
+	"disk_encryption_key_crn": "d96c4060-f2b3-4a47-9bef-241022e8496f", 
+	"members_cpu_allocation_count": "9 cores", 
+	"members_disk_allocation_mb": "393216MB", 
+	"members_memory_allocation_mb": "24576MB", 
+	"service-endpoints": "private", 
+	"version": "3.4" 
+}
+
